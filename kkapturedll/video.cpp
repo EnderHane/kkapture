@@ -29,7 +29,7 @@
 #include "avi_videoencoder_dshow.h"
 #include "x264_videoencoder.h"
 #include "mt_proxy_videoencoder.h"
-#include "ffmpeg_nvenc_videoencoder.h"
+#include "ffmpeg_videoencoder.h"
 
 
 static CRITICAL_SECTION captureDataLock;
@@ -78,9 +78,9 @@ VideoEncoder *createVideoEncoder(const char *filename)
     printLog("new X264VideoEncoder\n");
     break;
 
-  case FFMPEGNVENCEncoder:
-      encoder = new FFMPEGNVENCVideoEncoder(filename, frameRateScaled, frameRateDenom, params.X264Opts);
-      printLog("new FFMPEGNVENCVideoEncoder\n");
+  case FFmpegEncoder:
+      encoder = new FFmpegVideoEncoder(filename, frameRateScaled, frameRateDenom, params.FFmpegOutOpts, params.FFmpegInOpts);
+      printLog("new FFmpegVideoEncoder\n");
     break;
 
   default:

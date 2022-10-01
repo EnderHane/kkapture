@@ -123,6 +123,8 @@ static void LoadSettingsFromRegistry()
   Params.VideoCodec = RegQueryDWord(hk,_T("AVIVideoCodec"),mmioFOURCC('D','I','B',' '));
   Params.VideoQuality = RegQueryDWord(hk,_T("AVIVideoQuality"),ICQUALITY_DEFAULT);
   RegQueryString(hk,_T("x264Opts"),&Params.X264Opts[0],X264OPTS_LENGTH,_T("--crf 18"));
+  RegQueryString(hk, _T("FFmpegOutOpts"), &Params.FFmpegOutOpts[0], X264OPTS_LENGTH, _T("-c:v h264_nvenc -cq 18"));
+  RegQueryString(hk, _T("FFmpegInOpts"), &Params.FFmpegOutOpts[0], X264OPTS_LENGTH, _T(""));
   Params.NewIntercept = TRUE; // always use new interception now.
   Params.SoundsysInterception = RegQueryDWord(hk,_T("SoundsysInterception"),1);
   Params.EnableAutoSkip = RegQueryDWord(hk,_T("EnableAutoSkip"),0);
@@ -155,6 +157,8 @@ static void SaveSettingsToRegistry()
     RegSetDWord(hk,_T("AVIVideoCodec"),Params.VideoCodec);
     RegSetDWord(hk,_T("AVIVideoQuality"),Params.VideoQuality);
     RegSetString(hk,_T("X264Opts"),Params.X264Opts);
+    RegSetString(hk, _T("FFmpegOutOpts"), Params.FFmpegOutOpts);
+    RegSetString(hk, _T("FFmpegInOpts"), Params.FFmpegInOpts);
     RegSetDWord(hk,_T("NewIntercept"),Params.NewIntercept);
     RegSetDWord(hk,_T("SoundsysInterception"),Params.SoundsysInterception);
     RegSetDWord(hk,_T("EnableAutoSkip"),Params.EnableAutoSkip);
@@ -250,7 +254,7 @@ static void SetTargetName(HWND hWndDlg)
   EncoderType enc = (EncoderType)(SendDlgItemMessage(hWndDlg,IDC_ENCODER,CB_GETCURSEL,0,0) + 1);
   GetDlgItemText(hWndDlg,IDC_DEMO,path,COUNTOF(path));
   _tsplitpath_s(path,drive,dir,fname,ext);
-  if(enc == X264Encoder || enc == FFMPEGNVENCEncoder)
+  if(enc == X264Encoder || enc == FFmpegEncoder)
     _tmakepath_s(path,drive,dir,fname,_T(".mp4"));
   else
     _tmakepath_s(path,drive,dir,fname,_T(".avi"));
@@ -322,17 +326,21 @@ static INT_PTR CALLBACK MainDialogProc(HWND hWndDlg,UINT uMsg,WPARAM wParam,LPAR
       SendDlgItemMessage(hWndDlg,IDC_ENCODER,CB_ADDSTRING,0,(LPARAM) ".AVI (VfW, segmented)");
       SendDlgItemMessage(hWndDlg,IDC_ENCODER,CB_ADDSTRING,0,(LPARAM) ".AVI (DirectShow, *unstable*)");
       SendDlgItemMessage(hWndDlg,IDC_ENCODER,CB_ADDSTRING,0,(LPARAM) "use x264.exe + write .WAV");
-      SendDlgItemMessage(hWndDlg, IDC_ENCODER, CB_ADDSTRING, 0, (LPARAM)"use nvenc via ffmpeg + write .WAV");
+      SendDlgItemMessage(hWndDlg, IDC_ENCODER, CB_ADDSTRING, 0, (LPARAM)"use ffmpeg + write .WAV");
       SendDlgItemMessage(hWndDlg,IDC_ENCODER,CB_SETCURSEL,Params.Encoder - 1,0);
 
-      EnableDlgItem(hWndDlg,IDC_VIDEOCODEC,(Params.Encoder != BMPEncoder) && (Params.Encoder != X264Encoder) && (Params.Encoder != FFMPEGNVENCEncoder));
-      EnableDlgItem(hWndDlg,IDC_VCPICK,(Params.Encoder != BMPEncoder) && (Params.Encoder != X264Encoder) && (Params.Encoder != FFMPEGNVENCEncoder));
+      EnableDlgItem(hWndDlg,IDC_VIDEOCODEC,(Params.Encoder != BMPEncoder) && (Params.Encoder != X264Encoder) && (Params.Encoder != FFmpegEncoder));
+      EnableDlgItem(hWndDlg,IDC_VCPICK,(Params.Encoder != BMPEncoder) && (Params.Encoder != X264Encoder) && (Params.Encoder != FFmpegEncoder));
       EnableDlgItem(hWndDlg,IDC_X264LABEL,Params.Encoder == X264Encoder);
       EnableDlgItem(hWndDlg,IDC_X264OPTS,Params.Encoder == X264Encoder);
-      EnableDlgItem(hWndDlg, IDC_X264LABEL, Params.Encoder == FFMPEGNVENCEncoder);
-      EnableDlgItem(hWndDlg, IDC_X264OPTS, Params.Encoder == FFMPEGNVENCEncoder);
+      EnableDlgItem(hWndDlg, IDC_FFMPEGINLABEL, Params.Encoder == FFmpegEncoder);
+      EnableDlgItem(hWndDlg, IDC_FFMPEGINOPTS, Params.Encoder == FFmpegEncoder);
+      EnableDlgItem(hWndDlg, IDC_FFMPEGOUTLABEL, Params.Encoder == FFmpegEncoder);
+      EnableDlgItem(hWndDlg, IDC_FFMPEGOUTOPTS, Params.Encoder == FFmpegEncoder);
 
       SetDlgItemText(hWndDlg,IDC_X264OPTS,Params.X264Opts);
+      SetDlgItemText(hWndDlg, IDC_FFMPEGINOPTS, Params.FFmpegInOpts);
+      SetDlgItemText(hWndDlg, IDC_FFMPEGOUTOPTS, Params.FFmpegOutOpts);
 
       CheckDlgButton(hWndDlg,IDC_AUTOSKIP_TIMER,Params.FrequentTimerCheck ? BST_CHECKED : BST_UNCHECKED);
 
@@ -393,6 +401,8 @@ static INT_PTR CALLBACK MainDialogProc(HWND hWndDlg,UINT uMsg,WPARAM wParam,LPAR
         GetDlgItemText(hWndDlg,IDC_ARGUMENTS, Params.Arguments,MAX_ARGS);
         GetDlgItemText(hWndDlg,IDC_TARGET,Params.FileName,_MAX_PATH);
         GetDlgItemText(hWndDlg,IDC_X264OPTS,Params.X264Opts,X264OPTS_LENGTH);
+        GetDlgItemText(hWndDlg, IDC_FFMPEGINOPTS, Params.FFmpegInOpts, X264OPTS_LENGTH);
+        GetDlgItemText(hWndDlg, IDC_FFMPEGOUTOPTS, Params.FFmpegOutOpts, X264OPTS_LENGTH);
         GetDlgItemText(hWndDlg,IDC_FRAMERATE,frameRateStr,sizeof(frameRateStr)/sizeof(*frameRateStr));
         GetDlgItemText(hWndDlg,IDC_FIRSTFRAMETIMEOUT,firstFrameTimeout,sizeof(firstFrameTimeout)/sizeof(*firstFrameTimeout));
         GetDlgItemText(hWndDlg,IDC_OTHERFRAMETIMEOUT,otherFrameTimeout,sizeof(otherFrameTimeout)/sizeof(*otherFrameTimeout));

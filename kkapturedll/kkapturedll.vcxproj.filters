@@ -92,7 +92,7 @@
     <ClCompile Include="x264_videoencoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ffmpeg_nvenc_videoencoder.cpp">
+    <ClCompile Include="ffmpeg_videoencoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -160,7 +160,7 @@
     <ClInclude Include="x264_videoencoder.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="ffmpeg_nvenc_videoencoder.h">
+    <ClInclude Include="ffmpeg_videoencoder.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

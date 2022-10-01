@@ -54,7 +54,7 @@ enum EncoderType
   AVIEncoderVFW,
   AVIEncoderDShow,
   X264Encoder,
-  FFMPEGNVENCEncoder
+  FFmpegEncoder
 };
 
 struct ParameterBlock
@@ -68,6 +68,8 @@ struct ParameterBlock
   DWORD VideoCodec;
   DWORD VideoQuality;
   TCHAR X264Opts[X264OPTS_LENGTH];
+  TCHAR FFmpegInOpts[X264OPTS_LENGTH];
+  TCHAR FFmpegOutOpts[X264OPTS_LENGTH];
 
   BOOL CaptureVideo;
   BOOL CaptureAudio;

@@ -1,14 +1,15 @@
 #include "stdafx.h"
-#include "ffmpeg_nvenc_videoencoder.h"
+#include "ffmpeg_videoencoder.h"
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
-FFMPEGNVENCVideoEncoder::FFMPEGNVENCVideoEncoder(const char* fileName, int _fpsNum, int _fpsDenom, const char* _opts)
+FFmpegVideoEncoder::FFmpegVideoEncoder(const char* fileName, int _fpsNum, int _fpsDenom, const char* _opts, const char* _in_opts)
     : BMPVideoEncoder(fileName)
 {
     fpsNum = _fpsNum;
     fpsDenom = _fpsDenom;
-    strncpy_s(opts, 256, _opts, _TRUNCATE);
+    strncpy_s(out_opts, 256, _opts, _TRUNCATE);
+    strncpy_s(in_opts, 256, _in_opts, _TRUNCATE);
     hProcess = hStream = 0;
 
     TCHAR drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
@@ -18,7 +19,7 @@ FFMPEGNVENCVideoEncoder::FFMPEGNVENCVideoEncoder(const char* fileName, int _fpsN
     _tmakepath(x264ExePath, drive, dir, _T("ffmpeg"), _T("exe"));
 }
 
-FFMPEGNVENCVideoEncoder::~FFMPEGNVENCVideoEncoder()
+FFmpegVideoEncoder::~FFmpegVideoEncoder()
 {
     if (hStream)
     {
@@ -30,7 +31,7 @@ FFMPEGNVENCVideoEncoder::~FFMPEGNVENCVideoEncoder()
     }
 }
 
-void FFMPEGNVENCVideoEncoder::WriteFrame(const unsigned char* buffer)
+void FFmpegVideoEncoder::WriteFrame(const unsigned char* buffer)
 {
     DWORD dwDummy;
 
@@ -66,8 +67,8 @@ void FFMPEGNVENCVideoEncoder::WriteFrame(const unsigned char* buffer)
 
         // build the ffmpeg command line
         _snprintf_s(temp, sizeof(temp) / sizeof(*temp),
-            "\"%s\" -y -hwaccel cuda -hwaccel_output_format cuda -f rawvideo -pix_fmt bgr24 -s %dx%d -r %f %s -i - -c:v h264_nvenc -cq 18 \"%s.mp4\"",
-            x264ExePath, xRes, yRes, (float)fpsNum/fpsDenom, opts, prefix);
+            "\"%s\" -y -f rawvideo -pix_fmt bgr24 -s %dx%d -r %f %s -i - %s \"%s.mp4\"",
+            x264ExePath, xRes, yRes, (float)fpsNum/fpsDenom, in_opts, out_opts, prefix);
         printLog("ffmpeg: command line: %s\n", temp);
         WriteFile(hLogFile, (LPCVOID)&temp[0], (DWORD)strlen(temp), &dwDummy, NULL);
         WriteFile(hLogFile, (LPCVOID)&eol[0], 2, &dwDummy, NULL);

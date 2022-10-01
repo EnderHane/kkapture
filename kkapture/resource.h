@@ -34,6 +34,10 @@
 #define IDC_EXTRASCREENX                1033
 #define IDC_X264LABEL                   1034
 #define IDC_X264OPTS                    1035
+#define IDC_FFMPEGINLABEL               1036
+#define IDC_FFMPEGINOPTS                1037
+#define IDC_FFMPEGOUTLABEL              1038
+#define IDC_FFMPEGOUTOPTS               1039
 
 // Next default values for new objects
 // 
