@@ -54,6 +54,7 @@ enum EncoderType
   AVIEncoderVFW,
   AVIEncoderDShow,
   X264Encoder,
+  FFMPEGNVENCEncoder
 };
 
 struct ParameterBlock

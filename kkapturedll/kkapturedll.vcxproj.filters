@@ -92,6 +92,9 @@
     <ClCompile Include="x264_videoencoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ffmpeg_nvenc_videoencoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio_resample.h">
@@ -155,6 +158,9 @@
       <Filter>tdisasm</Filter>
     </ClInclude>
     <ClInclude Include="x264_videoencoder.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ffmpeg_nvenc_videoencoder.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

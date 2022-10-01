@@ -250,7 +250,7 @@ static void SetTargetName(HWND hWndDlg)
   EncoderType enc = (EncoderType)(SendDlgItemMessage(hWndDlg,IDC_ENCODER,CB_GETCURSEL,0,0) + 1);
   GetDlgItemText(hWndDlg,IDC_DEMO,path,COUNTOF(path));
   _tsplitpath_s(path,drive,dir,fname,ext);
-  if(enc == X264Encoder)
+  if(enc == X264Encoder || enc == FFMPEGNVENCEncoder)
     _tmakepath_s(path,drive,dir,fname,_T(".mp4"));
   else
     _tmakepath_s(path,drive,dir,fname,_T(".avi"));
@@ -322,12 +322,15 @@ static INT_PTR CALLBACK MainDialogProc(HWND hWndDlg,UINT uMsg,WPARAM wParam,LPAR
       SendDlgItemMessage(hWndDlg,IDC_ENCODER,CB_ADDSTRING,0,(LPARAM) ".AVI (VfW, segmented)");
       SendDlgItemMessage(hWndDlg,IDC_ENCODER,CB_ADDSTRING,0,(LPARAM) ".AVI (DirectShow, *unstable*)");
       SendDlgItemMessage(hWndDlg,IDC_ENCODER,CB_ADDSTRING,0,(LPARAM) "use x264.exe + write .WAV");
+      SendDlgItemMessage(hWndDlg, IDC_ENCODER, CB_ADDSTRING, 0, (LPARAM)"use nvenc via ffmpeg + write .WAV");
       SendDlgItemMessage(hWndDlg,IDC_ENCODER,CB_SETCURSEL,Params.Encoder - 1,0);
 
-      EnableDlgItem(hWndDlg,IDC_VIDEOCODEC,(Params.Encoder != BMPEncoder) && (Params.Encoder != X264Encoder));
-      EnableDlgItem(hWndDlg,IDC_VCPICK,(Params.Encoder != BMPEncoder) && (Params.Encoder != X264Encoder));
+      EnableDlgItem(hWndDlg,IDC_VIDEOCODEC,(Params.Encoder != BMPEncoder) && (Params.Encoder != X264Encoder) && (Params.Encoder != FFMPEGNVENCEncoder));
+      EnableDlgItem(hWndDlg,IDC_VCPICK,(Params.Encoder != BMPEncoder) && (Params.Encoder != X264Encoder) && (Params.Encoder != FFMPEGNVENCEncoder));
       EnableDlgItem(hWndDlg,IDC_X264LABEL,Params.Encoder == X264Encoder);
       EnableDlgItem(hWndDlg,IDC_X264OPTS,Params.Encoder == X264Encoder);
+      EnableDlgItem(hWndDlg, IDC_X264LABEL, Params.Encoder == FFMPEGNVENCEncoder);
+      EnableDlgItem(hWndDlg, IDC_X264OPTS, Params.Encoder == FFMPEGNVENCEncoder);
 
       SetDlgItemText(hWndDlg,IDC_X264OPTS,Params.X264Opts);
 

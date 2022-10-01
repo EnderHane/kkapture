@@ -29,6 +29,8 @@
 #include "avi_videoencoder_dshow.h"
 #include "x264_videoencoder.h"
 #include "mt_proxy_videoencoder.h"
+#include "ffmpeg_nvenc_videoencoder.h"
+
 
 static CRITICAL_SECTION captureDataLock;
 static bool gotDataLock = false;
@@ -56,20 +58,29 @@ VideoEncoder *createVideoEncoder(const char *filename)
   {
   case BMPEncoder:
     encoder = new BMPVideoEncoder(filename);
+    printLog("new BMPVideoEncoder\n");
     break;
 
   case AVIEncoderVFW:
     encoder = new AVIVideoEncoderVFW(filename,frameRateScaled,frameRateDenom,params.VideoCodec,params.VideoQuality);
+    printLog("new AVIVideoEncoderVFW\n");
     break;
 
 #if USE_DSHOW_AVI_WRITER
   case AVIEncoderDShow:
     encoder = new AVIVideoEncoderDShow(filename,frameRateScaled,frameRateDenom,params.VideoCodec,params.VideoQuality);
+    printLog("new AVIVideoEncoderDShow\n");
     break;
 #endif
 
   case X264Encoder:
     encoder = new X264VideoEncoder(filename,frameRateScaled,frameRateDenom,params.X264Opts);
+    printLog("new X264VideoEncoder\n");
+    break;
+
+  case FFMPEGNVENCEncoder:
+      encoder = new FFMPEGNVENCVideoEncoder(filename, frameRateScaled, frameRateDenom, params.X264Opts);
+      printLog("new FFMPEGNVENCVideoEncoder\n");
     break;
 
   default:
