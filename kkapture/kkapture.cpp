@@ -124,7 +124,7 @@ static void LoadSettingsFromRegistry()
   Params.VideoQuality = RegQueryDWord(hk,_T("AVIVideoQuality"),ICQUALITY_DEFAULT);
   RegQueryString(hk,_T("x264Opts"),&Params.X264Opts[0],X264OPTS_LENGTH,_T("--crf 18"));
   RegQueryString(hk, _T("FFmpegOutOpts"), &Params.FFmpegOutOpts[0], X264OPTS_LENGTH, _T("-c:v h264_nvenc -cq 18"));
-  RegQueryString(hk, _T("FFmpegInOpts"), &Params.FFmpegOutOpts[0], X264OPTS_LENGTH, _T(""));
+  RegQueryString(hk, _T("FFmpegInOpts"), &Params.FFmpegInOpts[0], X264OPTS_LENGTH, _T(""));
   Params.NewIntercept = TRUE; // always use new interception now.
   Params.SoundsysInterception = RegQueryDWord(hk,_T("SoundsysInterception"),1);
   Params.EnableAutoSkip = RegQueryDWord(hk,_T("EnableAutoSkip"),0);
