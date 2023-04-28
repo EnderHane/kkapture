@@ -27,7 +27,7 @@
 #include <unordered_map>
 
 #include <windows.h>
-#include "mhook-lib/mhook.h"
+#include "mhook.apriorit/mhook-lib/mhook.h"
 
 #include <vfw.h>
 #include <tchar.h>

@@ -12,7 +12,7 @@
     <Filter Include="mhook">
       <UniqueIdentifier>{38002c5b-c421-4ecd-a310-fffe2126dd41}</UniqueIdentifier>
     </Filter>
-    <Filter Include="tdisasm">
+    <Filter Include="disasm">
       <UniqueIdentifier>{ef94d408-0150-468f-94ad-a3580e691129}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -74,26 +74,26 @@
     <ClCompile Include="videoencoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mhook-lib\mhook.cpp">
-      <Filter>mhook</Filter>
+    <ClCompile Include="mhook\disasm-lib\cpu.c">
+      <Filter>disasm</Filter>
     </ClCompile>
-    <ClCompile Include="disasm-lib\cpu.c">
-      <Filter>tdisasm</Filter>
+    <ClCompile Include="mhook\disasm-lib\disasm.c">
+      <Filter>disasm</Filter>
     </ClCompile>
-    <ClCompile Include="disasm-lib\disasm.c">
-      <Filter>tdisasm</Filter>
+    <ClCompile Include="mhook\disasm-lib\disasm_x86.c">
+      <Filter>disasm</Filter>
     </ClCompile>
-    <ClCompile Include="disasm-lib\disasm_x86.c">
-      <Filter>tdisasm</Filter>
-    </ClCompile>
-    <ClCompile Include="disasm-lib\misc.c">
-      <Filter>tdisasm</Filter>
+    <ClCompile Include="mhook\disasm-lib\misc.c">
+      <Filter>disasm</Filter>
     </ClCompile>
     <ClCompile Include="x264_videoencoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ffmpeg_videoencoder.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mhook.apriorit\mhook-lib\mhook.c">
+      <Filter>mhook</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -139,29 +139,29 @@
     <ClInclude Include="videoencoder.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="mhook-lib\mhook.h">
-      <Filter>mhook</Filter>
+    <ClInclude Include="mhook\disasm-lib\cpu.h">
+      <Filter>disasm</Filter>
     </ClInclude>
-    <ClInclude Include="disasm-lib\cpu.h">
-      <Filter>tdisasm</Filter>
+    <ClInclude Include="mhook\disasm-lib\disasm.h">
+      <Filter>disasm</Filter>
     </ClInclude>
-    <ClInclude Include="disasm-lib\disasm.h">
-      <Filter>tdisasm</Filter>
+    <ClInclude Include="mhook\disasm-lib\disasm_x86.h">
+      <Filter>disasm</Filter>
     </ClInclude>
-    <ClInclude Include="disasm-lib\disasm_x86.h">
-      <Filter>tdisasm</Filter>
+    <ClInclude Include="mhook\disasm-lib\disasm_x86_tables.h">
+      <Filter>disasm</Filter>
     </ClInclude>
-    <ClInclude Include="disasm-lib\disasm_x86_tables.h">
-      <Filter>tdisasm</Filter>
-    </ClInclude>
-    <ClInclude Include="disasm-lib\misc.h">
-      <Filter>tdisasm</Filter>
+    <ClInclude Include="mhook\disasm-lib\misc.h">
+      <Filter>disasm</Filter>
     </ClInclude>
     <ClInclude Include="x264_videoencoder.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="ffmpeg_videoencoder.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mhook.apriorit\mhook-lib\mhook.h">
+      <Filter>mhook</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
