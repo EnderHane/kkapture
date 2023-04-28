@@ -4,7 +4,13 @@
 *.opensdf
 *.vcproj.*.user
 *.vcxproj.user
+.vs
+
 ipch/
 Debug/
 Release/
-.vs
+build/
+bin/
+obj/
+
+install/
