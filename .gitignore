@@ -13,4 +13,4 @@ build/
 bin/
 obj/
 
-install/
+publish/
