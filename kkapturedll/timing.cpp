@@ -45,6 +45,7 @@ static volatile LONG waitCounter = 0;
 static BOOL (__stdcall *Real_QueryPerformanceFrequency)(LARGE_INTEGER *lpFrequency) = QueryPerformanceFrequency;
 static BOOL (__stdcall *Real_QueryPerformanceCounter)(LARGE_INTEGER *lpPerformaceCount) = QueryPerformanceCounter;
 static DWORD (__stdcall *Real_GetTickCount)() = GetTickCount;
+static ULONGLONG(__stdcall* Real_GetTickCount64)() = GetTickCount64;
 static DWORD (__stdcall *Real_timeGetTime)() = timeGetTime;
 static MMRESULT (__stdcall *Real_timeGetSystemTime)(MMTIME *pmmt,UINT cbmmt) = timeGetSystemTime;
 VOID (__stdcall *Real_Sleep)(DWORD dwMilliseconds) = Sleep;
@@ -127,6 +128,12 @@ DWORD __stdcall Mine_GetTickCount()
   // before the first frame is finished, time still progresses normally
   int frame = getFrameTimingAndSeed();
   return firstTimeTGT + UMulDiv(frame,1000*frameRateDenom,frameRateScaled);
+}
+
+ULONGLONG __stdcall Mine_GetTickCount64()
+{
+    int frame = getFrameTimingAndSeed();
+    return (ULONGLONG)firstTimeTGT + ULongMulDiv((ULONGLONG)frame, 1000 * frameRateDenom, frameRateScaled);
 }
 
 DWORD __stdcall Mine_timeGetTime()
@@ -432,6 +439,7 @@ void initTiming(bool interceptAnything)
     HookFunction(&Real_QueryPerformanceFrequency, Mine_QueryPerformanceFrequency);
     HookFunction(&Real_QueryPerformanceCounter, Mine_QueryPerformanceCounter);
     HookFunction(&Real_GetTickCount, Mine_GetTickCount);
+    HookFunction(&Real_GetTickCount64, Mine_GetTickCount64);
     HookFunction(&Real_timeGetTime, Mine_timeGetTime);
     HookFunction(&Real_Sleep, Mine_Sleep);
     HookFunction(&Real_WaitForSingleObject, Mine_WaitForSingleObject);

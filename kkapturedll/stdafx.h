@@ -22,12 +22,12 @@
 
 #pragma once
 
-#define _WIN32_WINNT 0x0501
+// #define _WIN32_WINNT 0x0501
 
 #include <unordered_map>
 
 #include <windows.h>
-#include "mhook-lib/mhook.h"
+#include "mhook.apriorit/mhook-lib/mhook.h"
 
 #include <vfw.h>
 #include <tchar.h>

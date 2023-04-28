@@ -1,0 +1,3 @@
+[submodule "kkapturedll/mhook.apriorit"]
+	path = kkapturedll/mhook.apriorit
+	url = https://github.com/apriorit/mhook

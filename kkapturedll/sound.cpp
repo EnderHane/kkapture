@@ -35,6 +35,12 @@
 #pragma comment(lib,"winmm.lib")
 #pragma comment(lib,"psapi.lib")
 
+#ifndef _WIN64
+#define FMOD_DLL "fmod.dll"
+#else
+#define FMOD_DLL "lib64-win-x64\\fmod64.dll"
+#endif
+
 // if waveOutGetPosition is called frequently in a single frame, assume the app is waiting for the
 // current playback position to change and advance the time. this is the threshold for "frequent" calls.
 static const int MAX_GETPOSITION_PER_FRAME = 1024;
@@ -1569,7 +1575,7 @@ static unsigned int __stdcall Mine_FSOUND_GetCurrentPosition(int channel)
 
 static void initSoundsysFMOD3()
 {
-  HMODULE fmodDll = LoadLibraryA("fmod.dll");
+  HMODULE fmodDll = LoadLibraryA(FMOD_DLL);
   if(fmodDll)
   {
     if(GetProcAddress(fmodDll,"_FSOUND_Stream_Play@8"))
@@ -1718,9 +1724,24 @@ static void initSoundsysFMODEx()
   }
 }
 
+#ifndef _WIN64
+#define FMOD5_FMOD_DLL_FUNC_INIT "?init@System@FMOD@@QAG?AW4FMOD_RESULT@@HIPAX@Z"
+#define FMOD5_FMOD_DLL_FUNC_SETOUTPUT "?setOutput@System@FMOD@@QAG?AW4FMOD_RESULT@@W4FMOD_OUTPUTTYPE@@@Z"
+#define FMOD5_FMOD_DLL_FUNC_PLAYSOUND "?playSound@System@FMOD@@QAG?AW4FMOD_RESULT@@PAVSound@2@PAVChannelGroup@2@_NPAPAVChannel@2@@Z"
+#define FMOD5_FMOD_DLL_FUNC_GETFREQUENCY "?getFrequency@Channel@FMOD@@QAG?AW4FMOD_RESULT@@PAM@Z"
+#define FMOD5_FMOD_DLL_FUNC_GETPOSITION "?getPosition@Channel@FMOD@@QAG?AW4FMOD_RESULT@@PAII@Z"
+#else
+#define FMOD5_FMOD_DLL_FUNC_INIT "?init@System@FMOD@@QEAA?AW4FMOD_RESULT@@HIPEAX@Z"
+#define FMOD5_FMOD_DLL_FUNC_SETOUTPUT "?setOutput@System@FMOD@@QEAA?AW4FMOD_RESULT@@W4FMOD_OUTPUTTYPE@@@Z"
+#define FMOD5_FMOD_DLL_FUNC_PLAYSOUND "?playSound@System@FMOD@@QEAA?AW4FMOD_RESULT@@PEAVSound@2@PEAVChannelGroup@2@_NPEAPEAVChannel@2@@Z"
+#define FMOD5_FMOD_DLL_FUNC_GETFREQUENCY "?getFrequency@Channel@FMOD@@QEAA?AW4FMOD_RESULT@@PEAM@Z"
+#define FMOD5_FMOD_DLL_FUNC_GETPOSITION "?getPosition@Channel@FMOD@@QEAA?AW4FMOD_RESULT@@PEAII@Z"
+#endif // !_WIN64
+
+
 static void initSoundsysFMOD5()
 {
-  HMODULE fmodDll = LoadLibraryA("fmod.dll");
+  HMODULE fmodDll = LoadLibraryA(FMOD_DLL);
   if (fmodDll && GetProcAddress(fmodDll, "FMOD_System_Init"))
   {
     MODULEINFO moduleInfo;
@@ -1731,11 +1752,11 @@ static void initSoundsysFMOD5()
 
     printLog("sound/fmod5: fmod.dll found, FMOD5 support enabled.\n");
 
-    HookDLLFunction(&Real_System_init, fmodDll, "?init@System@FMOD@@QAG?AW4FMOD_RESULT@@HIPAX@Z", Mine_System_init);
-    GetDLLFunction(&Real_System_setOutput, fmodDll, "?setOutput@System@FMOD@@QAG?AW4FMOD_RESULT@@W4FMOD_OUTPUTTYPE@@@Z");
-    HookDLLFunction(&Real_System_playSound_fmod5, fmodDll, "?playSound@System@FMOD@@QAG?AW4FMOD_RESULT@@PAVSound@2@PAVChannelGroup@2@_NPAPAVChannel@2@@Z", Mine_System_playSound_fmod5);
-    GetDLLFunction(&Real_Channel_getFrequency, fmodDll, "?getFrequency@Channel@FMOD@@QAG?AW4FMOD_RESULT@@PAM@Z");
-    HookDLLFunction(&Real_Channel_getPosition, fmodDll, "?getPosition@Channel@FMOD@@QAG?AW4FMOD_RESULT@@PAII@Z", Mine_Channel_getPosition);
+    HookDLLFunction(&Real_System_init, fmodDll, FMOD5_FMOD_DLL_FUNC_INIT, Mine_System_init);
+    GetDLLFunction(&Real_System_setOutput, fmodDll, FMOD5_FMOD_DLL_FUNC_SETOUTPUT);
+    HookDLLFunction(&Real_System_playSound_fmod5, fmodDll, FMOD5_FMOD_DLL_FUNC_PLAYSOUND, Mine_System_playSound_fmod5);
+    GetDLLFunction(&Real_Channel_getFrequency, fmodDll, FMOD5_FMOD_DLL_FUNC_GETFREQUENCY);
+    HookDLLFunction(&Real_Channel_getPosition, fmodDll, FMOD5_FMOD_DLL_FUNC_GETPOSITION, Mine_Channel_getPosition);
   }
 }
 
