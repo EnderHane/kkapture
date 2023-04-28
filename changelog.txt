@@ -1,5 +1,5 @@
-version 1.4.1:
-* fix timing on .NET 7
+version 1.4.2:
+* fix timing on .NET 7 (thanks @EnderHane)
 
 version 1.04:
 * add FFmpeg encoder support NVENC (thanks @EnderHane)
