@@ -37,8 +37,10 @@
 
 #ifndef _WIN64
 #define FMOD_DLL "fmod.dll"
+#define FMOD_DLL2 "libs\\fmod64.dll"
 #else
-#define FMOD_DLL "lib64-win-x64\\fmod64.dll"
+#define FMOD_DLL "fmod64.dll"
+#define FMOD_DLL2 "lib64-win-x64\\fmod64.dll"
 #endif
 
 // if waveOutGetPosition is called frequently in a single frame, assume the app is waiting for the
@@ -1742,6 +1744,12 @@ static void initSoundsysFMODEx()
 static void initSoundsysFMOD5()
 {
   HMODULE fmodDll = LoadLibraryA(FMOD_DLL);
+  if (!fmodDll)
+  {
+      // TODO: make fmod.dll path configurable
+      fmodDll = LoadLibraryA(FMOD_DLL2);
+  }
+
   if (fmodDll && GetProcAddress(fmodDll, "FMOD_System_Init"))
   {
     MODULEINFO moduleInfo;
