@@ -171,9 +171,8 @@
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>del $(OutDir)*.lib
-del $(OutDir)*.exp
-del $(OutDir)*.pdb</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -197,9 +196,8 @@ del $(OutDir)*.pdb</Command>
       </DataExecutionPrevention>
     </Link>
     <PostBuildEvent>
-      <Command>del $(OutDir)*.lib
-del $(OutDir)*.exp
-del $(OutDir)*.pdb</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
