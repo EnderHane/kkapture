@@ -119,7 +119,7 @@ static void LoadSettingsFromRegistry()
   RegQueryString(hk,_T("FileName"),&Params.FileName[0],MAX_PATH,_T(""));
   Params.FrameRateNum = RegQueryDWord(hk,_T("FrameRate"),6000);
   Params.FrameRateDenom = RegQueryDWord(hk,_T("FrameRateDenom"),100);
-  Params.Encoder = (EncoderType) RegQueryDWord(hk,_T("VideoEncoder"),AVIEncoderVFW);
+  Params.Encoder = (EncoderType) RegQueryDWord(hk,_T("VideoEncoder"),X264Encoder);
   Params.VideoCodec = RegQueryDWord(hk,_T("AVIVideoCodec"),mmioFOURCC('D','I','B',' '));
   Params.VideoQuality = RegQueryDWord(hk,_T("AVIVideoQuality"),ICQUALITY_DEFAULT);
   RegQueryString(hk,_T("x264Opts"),&Params.X264Opts[0],ENCODER_OPTS_LENGTH,_T("--crf 18"));
