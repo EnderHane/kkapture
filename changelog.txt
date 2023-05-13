@@ -1,3 +1,6 @@
+version 1.4.3:
+* fix D3D11 (thanks @EnderHane)
+
 version 1.4.2:
 * fix timing on .NET 7 (thanks @EnderHane)
 
