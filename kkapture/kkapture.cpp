@@ -414,7 +414,7 @@ static INT_PTR CALLBACK MainDialogProc(HWND hWndDlg,UINT uMsg,WPARAM wParam,LPAR
         // validate everything and fill out parameter block
         HANDLE hFile = CreateFile(Params.ExeName,GENERIC_READ,0,0,OPEN_EXISTING,0,0);
         if(hFile == INVALID_HANDLE_VALUE)
-          return !ErrorMsg(_T("You need to specify a valid executable in the 'Demo' field."),hWndDlg);
+          return !ErrorMsg(_T("You need to specify a valid executable in the 'Application' field."),hWndDlg);
         else
           CloseHandle(hFile);
 
