@@ -56,8 +56,8 @@ void nextFrame();
 void skipFrame();
 
 // capture helpers
-void blitAndFlipBGRAToCaptureData(unsigned char *source,unsigned pitch);
-void blitAndFlipRGBAToCaptureData(unsigned char *source,unsigned pitch);
+void blitAndFlipBGRAToCaptureData(unsigned char *source,unsigned int pitch);
+void blitAndFlipRGBAToCaptureData(unsigned char *source,unsigned int pitch);
 
 extern int captureWidth, captureHeight;
 extern unsigned char *captureData;
@@ -81,7 +81,7 @@ public:
   GenericBlitter();
 
   void SetInvalidFormat();
-  void SetRGBFormat(int bits,unsigned redMask,unsigned greenMask,unsigned blueMask);
+  void SetRGBFormat(int bits,unsigned int redMask,unsigned int greenMask,unsigned int blueMask);
   void SetPalettedFormat(int bits);
   void SetPalette(const struct tagPALETTEENTRY *palette,int nEntries);
 
