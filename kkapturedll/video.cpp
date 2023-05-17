@@ -328,7 +328,7 @@ end:
 #endif
 }
 
-void blitAndFlipBGRAToCaptureData(unsigned char *source,unsigned pitch)
+void blitAndFlipBGRAToCaptureData(unsigned char *source,unsigned int pitch)
 {
   for(int y=0;y<captureHeight;y++)
   {
@@ -339,7 +339,7 @@ void blitAndFlipBGRAToCaptureData(unsigned char *source,unsigned pitch)
   }
 }
 
-void blitAndFlipRGBAToCaptureData(unsigned char *source,unsigned pitch)
+void blitAndFlipRGBAToCaptureData(unsigned char *source,unsigned int pitch)
 {
   for(int y=0;y<captureHeight;y++)
   {
