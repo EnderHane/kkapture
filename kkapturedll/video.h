@@ -44,6 +44,7 @@ void doneVideo();
 
 // init functions
 void initVideo_OpenGL();
+void initVideo_Vulkan();
 void initVideo_Direct3D8();
 void initVideo_Direct3D9();
 void initVideo_Direct3D10();
