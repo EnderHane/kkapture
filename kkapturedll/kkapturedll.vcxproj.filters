@@ -95,6 +95,9 @@
     <ClCompile Include="mhook.apriorit\mhook-lib\mhook.c">
       <Filter>mhook</Filter>
     </ClCompile>
+    <ClCompile Include="video_vulkan.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio_resample.h">

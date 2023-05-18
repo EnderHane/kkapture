@@ -571,6 +571,7 @@ void initVideo()
   }
 
   initVideo_OpenGL();
+  initVideo_Vulkan();
   initVideo_Direct3D8();
   initVideo_Direct3D9();
   initVideo_Direct3D10();
