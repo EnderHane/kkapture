@@ -201,21 +201,7 @@ static HRESULT __stdcall Mine_CreateDXGIFactory(REFIID riid,void **ppFactory)
   if (SUCCEEDED(hr)) 
   {
       printLog("video/dxgi: DXGIFactory created @ %p\n", *ppFactory);
-      MEMORY_BASIC_INFORMATION mbi;
-      if (VirtualQuery(*ppFactory, &mbi, sizeof(MEMORY_BASIC_INFORMATION)))
-      {
-          printLog("video/debug: AllocationProtect %x @ %p\n", mbi.AllocationProtect, *ppFactory);
-          if (mbi.AllocationProtect == PAGE_READWRITE)
-          {
-              HookDXGIFactory(riid, *ppFactory);
-          }
-      }
-      else
-      {
-          printLog("video/debug: Failed to query %p", *ppFactory);
-          DWORD lastErr = GetLastError();
-          printLog(", Last Error %#X\n", lastErr);
-      }
+      HookDXGIFactory(riid, *ppFactory);
   }
   return hr;
 }
@@ -226,21 +212,7 @@ static HRESULT __stdcall Mine_CreateDXGIFactory1(REFIID riid,void **ppFactory)
   if (SUCCEEDED(hr)) 
   {
       printLog("video/dxgi: DXGIFactory1 created @ %p\n", *ppFactory);
-      MEMORY_BASIC_INFORMATION mbi;
-      if(VirtualQuery(*ppFactory, &mbi, sizeof(MEMORY_BASIC_INFORMATION)))
-      {
-          printLog("video/debug: AllocationProtect %x @ %p\n", mbi.AllocationProtect, *ppFactory);
-          if (mbi.AllocationProtect == PAGE_READWRITE)
-          {
-              HookDXGIFactory(riid, *ppFactory);
-          }
-      } 
-      else
-      {
-          printLog("video/debug: Failed to query %p", *ppFactory);
-          DWORD lastErr = GetLastError();
-          printLog(", Last Error %#X\n", lastErr);
-      }
+      HookDXGIFactory(riid, *ppFactory);
   }
   return hr;
 }
@@ -251,21 +223,7 @@ static HRESULT __stdcall Mine_CreateDXGIFactory2(UINT flags, REFIID riid, void**
     if (SUCCEEDED(hr)) 
     {
         printLog("video/dxgi: DXGIFactory2 created @ %p\n", *ppFactory);
-        MEMORY_BASIC_INFORMATION mbi;
-        if (VirtualQuery(*ppFactory, &mbi, sizeof(MEMORY_BASIC_INFORMATION)))
-        {
-            printLog("video/debug: AllocationProtect %x @ %p\n", mbi.AllocationProtect, *ppFactory);
-            if (mbi.AllocationProtect == PAGE_READWRITE) 
-            {
-                HookDXGIFactory(riid, *ppFactory);
-            }
-        }
-        else
-        {
-            printLog("video/debug: Failed to query %p", *ppFactory);
-            DWORD lastErr = GetLastError();
-            printLog(", Last Error %#X\n", lastErr);
-        }
+        HookDXGIFactory(riid, *ppFactory);
     }
     return hr;
 }
