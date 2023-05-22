@@ -328,7 +328,7 @@ end:
 #endif
 }
 
-void blitAndFlipBGRAToCaptureData(unsigned char *source,unsigned pitch)
+void blitAndFlipBGRAToCaptureData(unsigned char *source,unsigned int pitch)
 {
   for(int y=0;y<captureHeight;y++)
   {
@@ -339,7 +339,7 @@ void blitAndFlipBGRAToCaptureData(unsigned char *source,unsigned pitch)
   }
 }
 
-void blitAndFlipRGBAToCaptureData(unsigned char *source,unsigned pitch)
+void blitAndFlipRGBAToCaptureData(unsigned char *source,unsigned int pitch)
 {
   for(int y=0;y<captureHeight;y++)
   {
@@ -571,6 +571,7 @@ void initVideo()
   }
 
   initVideo_OpenGL();
+  initVideo_Vulkan();
   initVideo_Direct3D8();
   initVideo_Direct3D9();
   initVideo_Direct3D10();

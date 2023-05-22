@@ -44,6 +44,7 @@ void doneVideo();
 
 // init functions
 void initVideo_OpenGL();
+void initVideo_Vulkan();
 void initVideo_Direct3D8();
 void initVideo_Direct3D9();
 void initVideo_Direct3D10();
@@ -56,8 +57,8 @@ void nextFrame();
 void skipFrame();
 
 // capture helpers
-void blitAndFlipBGRAToCaptureData(unsigned char *source,unsigned pitch);
-void blitAndFlipRGBAToCaptureData(unsigned char *source,unsigned pitch);
+void blitAndFlipBGRAToCaptureData(unsigned char *source,unsigned int pitch);
+void blitAndFlipRGBAToCaptureData(unsigned char *source,unsigned int pitch);
 
 extern int captureWidth, captureHeight;
 extern unsigned char *captureData;
@@ -81,7 +82,7 @@ public:
   GenericBlitter();
 
   void SetInvalidFormat();
-  void SetRGBFormat(int bits,unsigned redMask,unsigned greenMask,unsigned blueMask);
+  void SetRGBFormat(int bits,unsigned int redMask,unsigned int greenMask,unsigned int blueMask);
   void SetPalettedFormat(int bits);
   void SetPalette(const struct tagPALETTEENTRY *palette,int nEntries);
 
