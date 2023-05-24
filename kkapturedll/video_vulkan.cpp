@@ -1,10 +1,8 @@
 #include "stdafx.h"
-#include <map>
 #include <vector>
 #include <cassert>
 
-#include <vulkan/vulkan.h>
-#pragma comment(lib,"vulkan-1.lib")
+#include "video_vulkan.h"
 
 #include "video.h"
 #include "videoencoder.h"
@@ -29,19 +27,12 @@ static uint64_t rowPitch = 0;
 static bool formatReady = false;
 
 
-static PFN_vkQueuePresentKHR Real_vkQueuePresentKHR = nullptr;
-static PFN_vkCreateDevice Real_vkCreateDevice = nullptr;
-static PFN_vkDestroyDevice Real_vkDestroyDevice = nullptr;
-static PFN_vkCreateSwapchainKHR Real_vkCreateSwapchainKHR = nullptr;
-static PFN_vkDestroySwapchainKHR Real_vkDestroySwapchainKHR = nullptr;
-
-
 uint32_t getQueueFamilyIndex(VkPhysicalDevice physicalDeviceIn, uint32_t queueFlagBit)
 {
 	uint32_t queueFamilyCount = 0;
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDeviceIn, &queueFamilyCount, nullptr);
+	_DYN(vkGetPhysicalDeviceQueueFamilyProperties)(physicalDeviceIn, &queueFamilyCount, nullptr);
 	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDeviceIn, &queueFamilyCount, queueFamilies.data());
+	_DYN(vkGetPhysicalDeviceQueueFamilyProperties)(physicalDeviceIn, &queueFamilyCount, queueFamilies.data());
 	for (uint32_t i = 0; i < queueFamilyCount; i++)
 	{
 		if (queueFamilies.at(i).queueFlags & queueFlagBit)
@@ -56,7 +47,7 @@ uint32_t getQueueFamilyIndex(VkPhysicalDevice physicalDeviceIn, uint32_t queueFl
 uint32_t getMemoryTypeIndex(VkPhysicalDevice physicalDeviceIn, uint32_t typeBits, VkMemoryPropertyFlags properties)
 {
 	VkPhysicalDeviceMemoryProperties deviceMemoryProperties;
-	vkGetPhysicalDeviceMemoryProperties(physicalDeviceIn, &deviceMemoryProperties);
+	_DYN(vkGetPhysicalDeviceMemoryProperties)(physicalDeviceIn, &deviceMemoryProperties);
 	for (uint32_t i = 0; i < deviceMemoryProperties.memoryTypeCount; i++)
 	{
 		if ((typeBits & 1) == 1)
@@ -82,7 +73,7 @@ static bool grabFrameVulkan(
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = 0;
 	beginInfo.pInheritanceInfo = nullptr;
-	vkBeginCommandBuffer(::commandBuffer, &beginInfo);
+	_DYN(vkBeginCommandBuffer)(::commandBuffer, &beginInfo);
 
 	// Transition swapchain image layout
 	VkImageMemoryBarrier barrier = {};
@@ -99,7 +90,7 @@ static bool grabFrameVulkan(
 	barrier.subresourceRange.levelCount = 1;
 	barrier.subresourceRange.baseArrayLayer = 0;
 	barrier.subresourceRange.layerCount = 1;
-	vkCmdPipelineBarrier(::commandBuffer,
+	_DYN(vkCmdPipelineBarrier)(::commandBuffer,
 		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
 		VK_PIPELINE_STAGE_TRANSFER_BIT,
 		0,
@@ -113,7 +104,7 @@ static bool grabFrameVulkan(
 	barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 	barrier.image = ::image;
-	vkCmdPipelineBarrier(commandBuffer,
+	_DYN(vkCmdPipelineBarrier)(commandBuffer,
 		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
 		VK_PIPELINE_STAGE_TRANSFER_BIT,
 		0,
@@ -129,7 +120,7 @@ static bool grabFrameVulkan(
 	region.extent.width = ::width;
 	region.extent.height = ::height;
 	region.extent.depth = 1;
-	vkCmdCopyImage(::commandBuffer,
+	_DYN(vkCmdCopyImage)(::commandBuffer,
 		imagePresenting, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
 		::image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 		1, &region);
@@ -140,7 +131,7 @@ static bool grabFrameVulkan(
 	barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 	barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 	barrier.image = imagePresenting;
-	vkCmdPipelineBarrier(::commandBuffer,
+	_DYN(vkCmdPipelineBarrier)(::commandBuffer,
 		VK_PIPELINE_STAGE_TRANSFER_BIT,
 		VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
 		0,
@@ -156,7 +147,7 @@ static bool grabFrameVulkan(
 	// before it was transitioned to TRANSFER_DST_OPTIMAL
 	barrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
 	barrier.image = ::image;
-	vkCmdPipelineBarrier(::commandBuffer,
+	_DYN(vkCmdPipelineBarrier)(::commandBuffer,
 		VK_PIPELINE_STAGE_TRANSFER_BIT,
 		VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
 		0,
@@ -164,7 +155,7 @@ static bool grabFrameVulkan(
 		0, nullptr,
 		1, &barrier);
 
-	vkEndCommandBuffer(::commandBuffer);
+	_DYN(vkEndCommandBuffer)(::commandBuffer);
 
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -174,21 +165,22 @@ static bool grabFrameVulkan(
 	submitInfo.pWaitSemaphores = pWaitSemaphores;
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = &::copySemaphore;
-	auto rQueueSubmit = vkQueueSubmit(::queue, 1, &submitInfo, ::copyFence);
+	auto rQueueSubmit = _DYN(vkQueueSubmit)(::queue, 1, &submitInfo, ::copyFence);
 	if (rQueueSubmit != VK_SUCCESS)
 	{
 		printLog("video/vulkan: submission failed, VkResult %d\n", rQueueSubmit);
 		return false;
 	}
 	*semaphoreOverride = true;
-	vkWaitForFences(::device, 1, &::copyFence, VK_TRUE, UINT64_MAX);
-	vkResetFences(::device, 1, &::copyFence);
+	_DYN(vkWaitForFences)(::device, 1, &::copyFence, VK_TRUE, UINT64_MAX);
+	_DYN(vkResetFences)(::device, 1, &::copyFence);
 
 	blitAndFlipBGRAToCaptureData(::imageData, ::rowPitch);
 	return true;
 }
 
-static VkResult __stdcall Mine_vkQueuePresentKHR(
+
+static VkResult __stdcall _MINE(vkQueuePresentKHR)(
 	VkQueue queue_,
 	const VkPresentInfoKHR* pPresentInfo)
 {
@@ -212,17 +204,12 @@ static VkResult __stdcall Mine_vkQueuePresentKHR(
 			presentInfo.pWaitSemaphores = &::copySemaphore;
 		}
 	}
-	auto r = Real_vkQueuePresentKHR(queue_, &presentInfo);
+	auto r = _REAL(vkQueuePresentKHR)(queue_, &presentInfo);
 	nextFrame();
 	return r;
 }
 
-
-static void __stdcall Mine_vkDestroyDevice(VkDevice device_, const VkAllocationCallbacks* pAllocator);
-static VkResult __stdcall Mine_vkCreateSwapchainKHR(VkDevice device_, const VkSwapchainCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSwapchainKHR* pSwapchain);
-static void __stdcall Mine_vkDestroySwapchainKHR(VkDevice device_, VkSwapchainKHR swapchain_, const VkAllocationCallbacks* pAllocator);
-
-static VkResult __stdcall Mine_vkCreateDevice(
+static VkResult __stdcall _MINE(vkCreateDevice)(
 	VkPhysicalDevice physicalDevice_,
 	const VkDeviceCreateInfo* pCreateInfo,
 	const VkAllocationCallbacks* pAllocator,
@@ -230,46 +217,75 @@ static VkResult __stdcall Mine_vkCreateDevice(
 {
 	assert(::device == VK_NULL_HANDLE);
 
-	VkResult ret = Real_vkCreateDevice(physicalDevice_, pCreateInfo, pAllocator, pDevice);
+	VkResult ret = _REAL(vkCreateDevice)(physicalDevice_, pCreateInfo, pAllocator, pDevice);
 	if (ret == VK_SUCCESS)
 	{
 		printLog("video/vulkan: Device # %x created\n", *pDevice);
 		::physicalDevice = physicalDevice_;
 		::device = *pDevice;
 
+
+		HOOKVKDEVICEPROC(::device, vkDestroyDevice);
+		HOOKVKDEVICEPROC(::device, vkCreateSwapchainKHR);
+		HOOKVKDEVICEPROC(::device, vkDestroySwapchainKHR);
+		HOOKVKDEVICEPROC(::device, vkQueuePresentKHR);
+
+		VKDEVDYN(::device, vkGetDeviceQueue);
+		VKDEVDYN(::device, vkCreateCommandPool);
+		VKDEVDYN(::device, vkAllocateCommandBuffers);
+		VKDEVDYN(::device, vkCreateSemaphore);
+		VKDEVDYN(::device, vkCreateFence);
+
+		VKDEVDYN(::device, vkDestroySemaphore);
+		VKDEVDYN(::device, vkDestroyFence);
+		VKDEVDYN(::device, vkDestroyCommandPool);
+
+
+		VKDEVDYN(::device, vkGetSwapchainImagesKHR);
+		VKDEVDYN(::device, vkCreateImage);
+		VKDEVDYN(::device, vkGetImageMemoryRequirements);
+		VKDEVDYN(::device, vkAllocateMemory);
+		VKDEVDYN(::device, vkBindImageMemory);
+		VKDEVDYN(::device, vkGetImageSubresourceLayout);
+		VKDEVDYN(::device, vkMapMemory);
+
+		VKDEVDYN(::device, vkDestroyImage);
+		VKDEVDYN(::device, vkFreeMemory);
+
+
+		VKDEVDYN(::device, vkBeginCommandBuffer);
+		VKDEVDYN(::device, vkCmdPipelineBarrier);
+		VKDEVDYN(::device, vkCmdCopyImage);
+		VKDEVDYN(::device, vkEndCommandBuffer);
+		VKDEVDYN(::device, vkQueueSubmit);
+		VKDEVDYN(::device, vkWaitForFences);
+		VKDEVDYN(::device, vkResetFences);
+
+
 		uint32_t queueFamilyIndex = getQueueFamilyIndex(::physicalDevice, VK_QUEUE_TRANSFER_BIT);
-		vkGetDeviceQueue(::device, queueFamilyIndex, 0, &::queue);
+		_DYN(vkGetDeviceQueue)(::device, queueFamilyIndex, 0, &::queue);
 		VkCommandPoolCreateInfo commandPoolInfo{};
 		commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		commandPoolInfo.queueFamilyIndex = queueFamilyIndex;
 		commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-		vkCreateCommandPool(::device, &commandPoolInfo, nullptr, &::commandPool);
+		_DYN(vkCreateCommandPool)(::device, &commandPoolInfo, nullptr, &::commandPool);
 		VkCommandBufferAllocateInfo commandBufferInfo{};
 		commandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		commandBufferInfo.commandPool = commandPool;
 		commandBufferInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		commandBufferInfo.commandBufferCount = 1;
-		vkAllocateCommandBuffers(::device, &commandBufferInfo, &commandBuffer);
+		_DYN(vkAllocateCommandBuffers)(::device, &commandBufferInfo, &commandBuffer);
 		VkSemaphoreCreateInfo semaphoreInfo{};
 		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-		vkCreateSemaphore(::device, &semaphoreInfo, nullptr, &::copySemaphore);
+		_DYN(vkCreateSemaphore)(::device, &semaphoreInfo, nullptr, &::copySemaphore);
 		VkFenceCreateInfo fenceInfo{};
 		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-		vkCreateFence(::device, &fenceInfo, nullptr, &::copyFence);
-
-#ifndef HOOKVKDEVICEPROC
-#define __VKDEVICE ::device
-#define HOOKVKDEVICEPROC(func) HookFunctionInit(&Real_##func,(PFN_##func)vkGetDeviceProcAddr(__VKDEVICE, #func),Mine_##func);
-#endif // !HOOKVKDEV
-		HOOKVKDEVICEPROC(vkDestroyDevice);
-		HOOKVKDEVICEPROC(vkCreateSwapchainKHR);
-		HOOKVKDEVICEPROC(vkDestroySwapchainKHR);
-		HOOKVKDEVICEPROC(vkQueuePresentKHR);
+		_DYN(vkCreateFence)(::device, &fenceInfo, nullptr, &::copyFence);
 	}
 	return ret;
 }
 
-static void __stdcall Mine_vkDestroyDevice(
+static void __stdcall _MINE(vkDestroyDevice)(
 	VkDevice device_,
 	const VkAllocationCallbacks* pAllocator)
 {
@@ -277,18 +293,49 @@ static void __stdcall Mine_vkDestroyDevice(
 	printLog("video/vulkan: Device # %x destroyed\n", device_);
 
 	::queue = VK_NULL_HANDLE;
-	vkDestroySemaphore(::device, ::copySemaphore, nullptr);
-	vkDestroyFence(::device, ::copyFence, nullptr);
+	_DYN(vkDestroySemaphore)(::device, ::copySemaphore, nullptr);
+	_DYN(vkDestroyFence)(::device, ::copyFence, nullptr);
 	::copySemaphore = VK_NULL_HANDLE;
 	::copyFence = VK_NULL_HANDLE;
-	vkDestroyCommandPool(::device, ::commandPool, nullptr);
+	_DYN(vkDestroyCommandPool)(::device, ::commandPool, nullptr);
 	::commandPool = VK_NULL_HANDLE;
-	Real_vkDestroyDevice(device_, pAllocator);
+	_REAL(vkDestroyDevice)(device_, pAllocator);
 	::device = VK_NULL_HANDLE;
 	::physicalDevice = VK_NULL_HANDLE;
+
+	_DYN(vkGetDeviceQueue) = nullptr;
+	_DYN(vkCreateCommandPool) = nullptr;
+	_DYN(vkAllocateCommandBuffers) = nullptr;
+	_DYN(vkCreateSemaphore) = nullptr;
+	_DYN(vkCreateFence) = nullptr;
+
+	_DYN(vkDestroySemaphore) = nullptr;
+	_DYN(vkDestroyFence) = nullptr;
+	_DYN(vkDestroyCommandPool) = nullptr;
+
+
+	_DYN(vkGetSwapchainImagesKHR) = nullptr;
+	_DYN(vkCreateImage) = nullptr;
+	_DYN(vkGetImageMemoryRequirements) = nullptr;
+	_DYN(vkAllocateMemory) = nullptr;
+	_DYN(vkBindImageMemory) = nullptr;
+	_DYN(vkGetImageSubresourceLayout) = nullptr;
+	_DYN(vkMapMemory) = nullptr;
+
+	_DYN(vkDestroyImage) = nullptr;
+	_DYN(vkFreeMemory) = nullptr;
+
+
+	_DYN(vkBeginCommandBuffer) = nullptr;
+	_DYN(vkCmdPipelineBarrier) = nullptr;
+	_DYN(vkCmdCopyImage) = nullptr;
+	_DYN(vkEndCommandBuffer) = nullptr;
+	_DYN(vkQueueSubmit) = nullptr;
+	_DYN(vkWaitForFences) = nullptr;
+	_DYN(vkResetFences) = nullptr;
 }
 
-static VkResult __stdcall Mine_vkCreateSwapchainKHR(
+static VkResult __stdcall _MINE(vkCreateSwapchainKHR)(
 	VkDevice device_,
 	const VkSwapchainCreateInfoKHR* pCreateInfo,
 	const VkAllocationCallbacks* pAllocator,
@@ -296,7 +343,7 @@ static VkResult __stdcall Mine_vkCreateSwapchainKHR(
 {
 	assert(::swapchain == VK_NULL_HANDLE && ::device == device_);
 
-	VkResult ret = Real_vkCreateSwapchainKHR(device_, pCreateInfo, pAllocator, pSwapchain);
+	VkResult ret = _REAL(vkCreateSwapchainKHR)(device_, pCreateInfo, pAllocator, pSwapchain);
 	if (ret == VK_SUCCESS)
 	{
 		::swapchain = *pSwapchain;
@@ -315,9 +362,9 @@ static VkResult __stdcall Mine_vkCreateSwapchainKHR(
 		::height = pCreateInfo->imageExtent.height;
 		setCaptureResolution(::width, ::height);
 		uint32_t imageCount;
-		vkGetSwapchainImagesKHR(::device, *pSwapchain, &imageCount, nullptr);
+		_DYN(vkGetSwapchainImagesKHR)(::device, *pSwapchain, &imageCount, nullptr);
 		::swapchainImages.resize(imageCount);
-		vkGetSwapchainImagesKHR(::device, *pSwapchain, &imageCount, ::swapchainImages.data());
+		_DYN(vkGetSwapchainImagesKHR)(::device, *pSwapchain, &imageCount, ::swapchainImages.data());
 
 		VkImageCreateInfo imageCreateInfo{};
 		imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -332,13 +379,13 @@ static VkResult __stdcall Mine_vkCreateSwapchainKHR(
 		imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 		imageCreateInfo.tiling = VK_IMAGE_TILING_LINEAR;
 		imageCreateInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-		vkCreateImage(::device, &imageCreateInfo, nullptr, &::image);
+		_DYN(vkCreateImage)(::device, &imageCreateInfo, nullptr, &::image);
 
 		// Create memory to back up the image
 		VkMemoryRequirements memoryRequirements;
 		VkMemoryAllocateInfo memoryAllocationInfo{};
 		memoryAllocationInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		vkGetImageMemoryRequirements(::device, ::image, &memoryRequirements);
+		_DYN(vkGetImageMemoryRequirements)(::device, ::image, &memoryRequirements);
 		memoryAllocationInfo.allocationSize = memoryRequirements.size;
 		memoryAllocationInfo.memoryTypeIndex =
 			getMemoryTypeIndex(
@@ -346,22 +393,22 @@ static VkResult __stdcall Mine_vkCreateSwapchainKHR(
 				memoryRequirements.memoryTypeBits,
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT
 			);
-		vkAllocateMemory(::device, &memoryAllocationInfo, nullptr, &::memory);
-		vkBindImageMemory(::device, ::image, ::memory, 0);
+		_DYN(vkAllocateMemory)(::device, &memoryAllocationInfo, nullptr, &::memory);
+		_DYN(vkBindImageMemory)(::device, ::image, ::memory, 0);
 
 		// Get layout of the image (including row pitch)
 		VkImageSubresource subResource{};
 		subResource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		VkSubresourceLayout subResourceLayout;
-		vkGetImageSubresourceLayout(::device, ::image, &subResource, &subResourceLayout);
+		_DYN(vkGetImageSubresourceLayout)(::device, ::image, &subResource, &subResourceLayout);
 		::rowPitch = subResourceLayout.rowPitch;
-		vkMapMemory(::device, ::memory, subResourceLayout.offset, VK_WHOLE_SIZE, 0, (void**)&::imageData);
+		_DYN(vkMapMemory)(::device, ::memory, subResourceLayout.offset, VK_WHOLE_SIZE, 0, (void**)&::imageData);
 
 	}
 	return ret;
 }
 
-static void __stdcall Mine_vkDestroySwapchainKHR(
+static void __stdcall _MINE(vkDestroySwapchainKHR)(
 	VkDevice device_,
 	VkSwapchainKHR swapchain_,
 	const VkAllocationCallbacks* pAllocator)
@@ -373,14 +420,14 @@ static void __stdcall Mine_vkDestroySwapchainKHR(
 	::height = 0;
 	::formatReady = false;
 	::swapchainImages.clear();
-	vkDestroyImage(::device, ::image, nullptr);
-	vkFreeMemory(::device, ::memory, nullptr);
+	_DYN(vkDestroyImage)(::device, ::image, nullptr);
+	_DYN(vkFreeMemory)(::device, ::memory, nullptr);
 	::image = VK_NULL_HANDLE;
 	::memory = VK_NULL_HANDLE;
 	::imageData = nullptr;
 	::rowPitch = 0;
 
-	Real_vkDestroySwapchainKHR(device_, swapchain_, pAllocator);
+	_REAL(vkDestroySwapchainKHR)(device_, swapchain_, pAllocator);
 	::swapchain = VK_NULL_HANDLE;
 }
 
@@ -389,6 +436,9 @@ void initVideo_Vulkan()
 	HMODULE vulkan = LoadLibraryA("vulkan-1.dll");
 	if (vulkan)
 	{
-		HookDLLFunction(&Real_vkCreateDevice, vulkan, "vkCreateDevice", Mine_vkCreateDevice);
+		WINDYN(vulkan, vkGetPhysicalDeviceQueueFamilyProperties);
+		WINDYN(vulkan, vkGetPhysicalDeviceMemoryProperties);
+		WINDYN(vulkan, vkGetDeviceProcAddr);
+		WINHK(vulkan, vkCreateDevice);
 	}
 }
