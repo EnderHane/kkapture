@@ -224,43 +224,13 @@ static VkResult __stdcall _MINE(vkCreateDevice)(
 		::physicalDevice = physicalDevice_;
 		::device = *pDevice;
 
+#define XXX_MACRO(f) HOOK_VKDEVICE_PROC(::device,##f)
+		VKDEVICE_HOOKS;
+#undef XXX_MACRO
 
-		HOOKVKDEVICEPROC(::device, vkDestroyDevice);
-		HOOKVKDEVICEPROC(::device, vkCreateSwapchainKHR);
-		HOOKVKDEVICEPROC(::device, vkDestroySwapchainKHR);
-		HOOKVKDEVICEPROC(::device, vkQueuePresentKHR);
-
-		VKDEVDYN(::device, vkGetDeviceQueue);
-		VKDEVDYN(::device, vkCreateCommandPool);
-		VKDEVDYN(::device, vkAllocateCommandBuffers);
-		VKDEVDYN(::device, vkCreateSemaphore);
-		VKDEVDYN(::device, vkCreateFence);
-
-		VKDEVDYN(::device, vkDestroySemaphore);
-		VKDEVDYN(::device, vkDestroyFence);
-		VKDEVDYN(::device, vkDestroyCommandPool);
-
-
-		VKDEVDYN(::device, vkGetSwapchainImagesKHR);
-		VKDEVDYN(::device, vkCreateImage);
-		VKDEVDYN(::device, vkGetImageMemoryRequirements);
-		VKDEVDYN(::device, vkAllocateMemory);
-		VKDEVDYN(::device, vkBindImageMemory);
-		VKDEVDYN(::device, vkGetImageSubresourceLayout);
-		VKDEVDYN(::device, vkMapMemory);
-
-		VKDEVDYN(::device, vkDestroyImage);
-		VKDEVDYN(::device, vkFreeMemory);
-
-
-		VKDEVDYN(::device, vkBeginCommandBuffer);
-		VKDEVDYN(::device, vkCmdPipelineBarrier);
-		VKDEVDYN(::device, vkCmdCopyImage);
-		VKDEVDYN(::device, vkEndCommandBuffer);
-		VKDEVDYN(::device, vkQueueSubmit);
-		VKDEVDYN(::device, vkWaitForFences);
-		VKDEVDYN(::device, vkResetFences);
-
+#define XXX_MACRO(f) VKDEVICE_INIT_PROC_ADDR(::device,##f)
+		VKDEVICE_FNPTRS;
+#undef XXX_MACRO
 
 		uint32_t queueFamilyIndex = getQueueFamilyIndex(::physicalDevice, VK_QUEUE_TRANSFER_BIT);
 		_DYN(vkGetDeviceQueue)(::device, queueFamilyIndex, 0, &::queue);
@@ -303,36 +273,10 @@ static void __stdcall _MINE(vkDestroyDevice)(
 	::device = VK_NULL_HANDLE;
 	::physicalDevice = VK_NULL_HANDLE;
 
-	_DYN(vkGetDeviceQueue) = nullptr;
-	_DYN(vkCreateCommandPool) = nullptr;
-	_DYN(vkAllocateCommandBuffers) = nullptr;
-	_DYN(vkCreateSemaphore) = nullptr;
-	_DYN(vkCreateFence) = nullptr;
+#define XXX_MACRO(f) _DYN(##f)=nullptr;
+	VKDEVICE_FNPTRS;
+#undef XXX_MACRO
 
-	_DYN(vkDestroySemaphore) = nullptr;
-	_DYN(vkDestroyFence) = nullptr;
-	_DYN(vkDestroyCommandPool) = nullptr;
-
-
-	_DYN(vkGetSwapchainImagesKHR) = nullptr;
-	_DYN(vkCreateImage) = nullptr;
-	_DYN(vkGetImageMemoryRequirements) = nullptr;
-	_DYN(vkAllocateMemory) = nullptr;
-	_DYN(vkBindImageMemory) = nullptr;
-	_DYN(vkGetImageSubresourceLayout) = nullptr;
-	_DYN(vkMapMemory) = nullptr;
-
-	_DYN(vkDestroyImage) = nullptr;
-	_DYN(vkFreeMemory) = nullptr;
-
-
-	_DYN(vkBeginCommandBuffer) = nullptr;
-	_DYN(vkCmdPipelineBarrier) = nullptr;
-	_DYN(vkCmdCopyImage) = nullptr;
-	_DYN(vkEndCommandBuffer) = nullptr;
-	_DYN(vkQueueSubmit) = nullptr;
-	_DYN(vkWaitForFences) = nullptr;
-	_DYN(vkResetFences) = nullptr;
 }
 
 static VkResult __stdcall _MINE(vkCreateSwapchainKHR)(
@@ -436,9 +380,11 @@ void initVideo_Vulkan()
 	HMODULE vulkan = LoadLibraryA("vulkan-1.dll");
 	if (vulkan)
 	{
-		WINDYN(vulkan, vkGetPhysicalDeviceQueueFamilyProperties);
-		WINDYN(vulkan, vkGetPhysicalDeviceMemoryProperties);
-		WINDYN(vulkan, vkGetDeviceProcAddr);
-		WINHK(vulkan, vkCreateDevice);
+
+#define XXX_MACRO(f) WIN_INIT_PROC_ADDR(vulkan,##f)
+		VK_FNPTRS;
+#undef XXX_MACRO
+
+		HOOK_DLL(vulkan, vkCreateDevice);
 	}
 }
