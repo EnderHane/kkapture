@@ -27,6 +27,12 @@ VideoEncoder::~VideoEncoder()
 {
 }
 
+void VideoEncoder::WriteFrameMove(const unsigned char* buffer)
+{
+	WriteFrame(buffer);
+}
+
+
 // ---
 
 DummyVideoEncoder::DummyVideoEncoder()

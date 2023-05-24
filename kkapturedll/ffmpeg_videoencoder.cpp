@@ -98,11 +98,8 @@ void FFmpegVideoEncoder::WriteFrame(const unsigned char* buffer)
     }
 
     if (hStream && hProcess)
-    {
-        for (int y = yRes - 1; y >= 0; --y)
-        {
-            WriteFile(hStream, (LPCVOID)&buffer[y * xRes * 3], xRes * 3, &dwDummy, NULL);
-        }
+    { 
+        WriteFile(hStream, (LPCVOID)buffer, yRes * xRes * 3, &dwDummy, NULL);
     }
 
     frame++;

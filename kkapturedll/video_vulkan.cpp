@@ -184,7 +184,6 @@ static bool grabFrameVulkan(
 	vkWaitForFences(::device, 1, &::copyFence, VK_TRUE, UINT64_MAX);
 	vkResetFences(::device, 1, &::copyFence);
 
-	blitAndFlipBGRAToCaptureData(::imageData, ::rowPitch);
 	return true;
 }
 
@@ -204,7 +203,11 @@ static VkResult __stdcall Mine_vkQueuePresentKHR(
 			&override
 		))
 		{
-			encoder->WriteFrame(captureData);
+			//blitBGRAToCaptureData(::imageData, ::rowPitch);
+			//encoder->WriteFrame(captureData);
+			unsigned char* buffer = new unsigned char[captureWidth * captureHeight * 3];
+			blitBGRA(::imageData, ::rowPitch, buffer);
+			encoder->WriteFrameMove(buffer);
 		}
 		if (override)
 		{

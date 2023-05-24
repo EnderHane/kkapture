@@ -32,6 +32,7 @@ public:
 
   virtual void SetSize(int xRes,int yRes) = 0;
   virtual void WriteFrame(const unsigned char *buffer) = 0;
+  virtual void WriteFrameMove(const unsigned char* buffer);
 
   virtual void SetAudioFormat(const struct tWAVEFORMATEX *fmt) = 0;
   virtual tWAVEFORMATEX *GetAudioFormat() = 0;

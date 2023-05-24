@@ -58,7 +58,10 @@ void skipFrame();
 
 // capture helpers
 void blitAndFlipBGRAToCaptureData(unsigned char *source,unsigned int pitch);
+void blitBGRAToCaptureData(unsigned char* source, unsigned int pitch);
+void blitBGRA(unsigned char* src, unsigned int pitch, unsigned char* dst);
 void blitAndFlipRGBAToCaptureData(unsigned char *source,unsigned int pitch);
+void blitRGBAToCaptureData(unsigned char* source, unsigned int pitch);
 
 extern int captureWidth, captureHeight;
 extern unsigned char *captureData;

@@ -78,7 +78,7 @@ static bool grabFrameD3D10(IDXGISwapChain *swap)
     switch(desc.Format)
     {
     case DXGI_FORMAT_R8G8B8A8_UNORM:
-      blitAndFlipRGBAToCaptureData((unsigned char *) mapped.pData,mapped.RowPitch);
+      blitRGBAToCaptureData((unsigned char *) mapped.pData,mapped.RowPitch);
       grabOk = true;
       break;
 
@@ -140,7 +140,7 @@ static bool grabFrameD3D11(IDXGISwapChain *swap)
     switch(desc.Format)
     {
     case DXGI_FORMAT_R8G8B8A8_UNORM:
-      blitAndFlipRGBAToCaptureData((unsigned char *) mapped.pData,mapped.RowPitch);
+      blitRGBAToCaptureData((unsigned char *) mapped.pData,mapped.RowPitch);
       grabOk = true;
       break;
 

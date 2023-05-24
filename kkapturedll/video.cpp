@@ -339,6 +339,42 @@ void blitAndFlipBGRAToCaptureData(unsigned char *source,unsigned int pitch)
   }
 }
 
+void blitBGRAToCaptureData(unsigned char* source, unsigned int pitch)
+{
+    for (int y = 0; y < captureHeight; y++)
+    {
+        unsigned char* src = source + y * pitch;
+        unsigned char* dst = captureData + y * captureWidth * 3;
+
+        for (int x = 0; x < captureWidth; x++)
+        {
+            dst[0] = src[0];
+            dst[1] = src[1];
+            dst[2] = src[2];
+            dst += 3;
+            src += 4;
+        }
+    }
+}
+
+void blitBGRA(unsigned char* src, unsigned int pitch, unsigned char* dst)
+{
+    for (int y = 0; y < captureHeight; y++)
+    {
+        unsigned char* s = src + y * pitch;
+        unsigned char* d = dst + y * captureWidth * 3;
+
+        for (int x = 0; x < captureWidth; x++)
+        {
+            d[0] = s[0];
+            d[1] = s[1];
+            d[2] = s[2];
+            d += 3;
+            s += 4;
+        }
+    }
+}
+
 void blitAndFlipRGBAToCaptureData(unsigned char *source,unsigned int pitch)
 {
   for(int y=0;y<captureHeight;y++)
@@ -355,6 +391,24 @@ void blitAndFlipRGBAToCaptureData(unsigned char *source,unsigned int pitch)
       src += 4;
     }
   }
+}
+
+void blitRGBAToCaptureData(unsigned char* source, unsigned int pitch)
+{
+    for (int y = 0; y < captureHeight; y++)
+    {
+        unsigned char* src = source + y * pitch;
+        unsigned char* dst = captureData + y * captureWidth * 3;
+
+        for (int x = 0; x < captureWidth; x++)
+        {
+            dst[0] = src[2];
+            dst[1] = src[1];
+            dst[2] = src[0];
+            dst += 3;
+            src += 4;
+        }
+    }
 }
 
 // generic blitter class

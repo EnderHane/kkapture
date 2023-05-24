@@ -44,6 +44,7 @@ public:
 
   virtual void SetSize(int xRes,int yRes);
   virtual void WriteFrame(const unsigned char *buffer);
+  virtual void WriteFrameMove(const unsigned char* buffer);
 
   virtual void SetAudioFormat(const tWAVEFORMATEX *fmt);
   virtual tWAVEFORMATEX *GetAudioFormat();

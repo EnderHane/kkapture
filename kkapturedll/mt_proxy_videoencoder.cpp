@@ -200,6 +200,12 @@ void MTProxyVideoEncoder::WriteFrame(const unsigned char *buffer)
     d->QueueAppend(QC_WRITEFRAME,MakeCopy(buffer,d->xRes*d->yRes*3),0,0);
 }
 
+void MTProxyVideoEncoder::WriteFrameMove(const unsigned char* buffer)
+{
+    if (d->xRes && d->yRes)
+        d->QueueAppend(QC_WRITEFRAME, (void *)buffer, 0, 0);
+}
+
 void MTProxyVideoEncoder::SetAudioFormat(const tWAVEFORMATEX *fmt)
 {
   d->QueueAppend(QC_SETAUDIOFORMAT,CopyFormat(fmt),0,0);

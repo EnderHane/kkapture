@@ -144,7 +144,7 @@ static bool captureD3DFrame9(IDirect3DDevice9 *dev)
 
       if(SUCCEEDED(captureSurf->LockRect(&lr,0,D3DLOCK_READONLY)))
       {
-        blitAndFlipBGRAToCaptureData((unsigned char *) lr.pBits,lr.Pitch);
+        blitBGRAToCaptureData((unsigned char *) lr.pBits,lr.Pitch);
         captureSurf->UnlockRect();
         error = false;
       }
