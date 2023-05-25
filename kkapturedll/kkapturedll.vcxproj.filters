@@ -166,5 +166,8 @@
     <ClInclude Include="mhook.apriorit\mhook-lib\mhook.h">
       <Filter>mhook</Filter>
     </ClInclude>
+    <ClInclude Include="video_vulkan.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

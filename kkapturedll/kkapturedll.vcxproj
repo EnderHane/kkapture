@@ -312,6 +312,7 @@
     <ClInclude Include="mhook\disasm-lib\disasm_x86.h" />
     <ClInclude Include="mhook\disasm-lib\disasm_x86_tables.h" />
     <ClInclude Include="mhook\disasm-lib\misc.h" />
+    <ClInclude Include="video_vulkan.h" />
     <ClInclude Include="x264_videoencoder.h" />
     <ClInclude Include="ffmpeg_videoencoder.h" />
   </ItemGroup>
